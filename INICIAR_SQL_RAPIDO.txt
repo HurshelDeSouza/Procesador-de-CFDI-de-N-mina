@@ -1,0 +1,48 @@
+═══════════════════════════════════════════════════════════════
+  🚀 CÓMO INICIAR SQL SERVER - GUÍA RÁPIDA
+═══════════════════════════════════════════════════════════════
+
+MÉTODO 1: PowerShell como Administrador (MÁS RÁPIDO)
+────────────────────────────────────────────────────
+1. Presiona: Win + X
+2. Selecciona: "Terminal (Administrador)" o "PowerShell (Administrador)"
+3. Copia y pega este comando:
+
+   Start-Service MSSQLSERVER
+
+4. Presiona Enter
+5. Espera 5 segundos
+6. ¡Listo! Ahora ejecuta: ejecutar_pruebas_completas.bat
+
+
+MÉTODO 2: Usando el archivo .bat
+────────────────────────────────
+1. Busca el archivo: iniciar_sql_server.bat
+2. Clic derecho sobre él
+3. Selecciona: "Ejecutar como administrador"
+4. Espera a que termine
+5. Ejecuta: ejecutar_pruebas_completas.bat
+
+
+MÉTODO 3: Servicios de Windows
+───────────────────────────────
+1. Presiona: Win + R
+2. Escribe: services.msc
+3. Presiona Enter
+4. Busca: "SQL Server (MSSQLSERVER)"
+5. Clic derecho → Iniciar
+6. Ejecuta: ejecutar_pruebas_completas.bat
+
+
+VERIFICAR QUE ESTÁ CORRIENDO:
+──────────────────────────────
+En PowerShell ejecuta:
+   Get-Service MSSQLSERVER
+
+Debe mostrar: Status = Running
+
+
+═══════════════════════════════════════════════════════════════
+Una vez que SQL Server esté corriendo, ejecuta:
+   ejecutar_pruebas_completas.bat
+═══════════════════════════════════════════════════════════════

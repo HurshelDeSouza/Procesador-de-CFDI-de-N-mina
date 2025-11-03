@@ -119,21 +119,36 @@ Ingrese la ruta de la carpeta con los archivos XML de nómina: C:\MisXMLs
 ### Proceso de Ejecución
 
 1. La aplicación verifica la conexión a la base de datos
-2. Lee todos los archivos `.xml` de la carpeta especificada
-3. Para cada archivo:
-   - Verifica si es un CFDI de nómina
+2. Solicita el tipo de CFDI a procesar:
+   - **Opción 1:** Solo Nómina
+   - **Opción 2:** Solo Ingreso y Egreso (Facturas)
+   - **Opción 3:** Solo Pagos 2.0
+   - **Opción 4:** Todos (detecta automáticamente el tipo)
+3. Lee todos los archivos `.xml` de la carpeta especificada
+4. Para cada archivo:
+   - Identifica el tipo de comprobante
    - Extrae el UUID del TimbreFiscalDigital
    - Verifica si ya existe en la base de datos (evita duplicados)
-   - Inserta los datos en las tablas correspondientes:
-     - `CFDI_Comprobante`
-     - `CFDI_Emisor`
-     - `CFDI_Receptor`
-     - `CFDI_Concepto`
-     - `Nomina_Detalle`
-     - `Nomina_Percepciones`
-     - `Nomina_Deducciones`
-     - `Nomina_OtrosPagos`
-4. Muestra el resultado de cada archivo procesado
+   - Inserta los datos en las tablas correspondientes según el tipo:
+
+#### CFDI de Nómina (N):
+- `CFDI_Comprobante`, `CFDI_Emisor`, `CFDI_Receptor`
+- `CFDI_Concepto`
+- `Nomina_Detalle`, `Nomina_Percepciones`, `Nomina_Deducciones`, `Nomina_OtrosPagos`
+
+#### CFDI de Ingreso/Egreso (I/E):
+- `CFDI_Comprobante`, `CFDI_Emisor`, `CFDI_Receptor`
+- `CFDI_Concepto`
+- `CFDI_TrasladoConcepto` (IVA, IEPS, etc.)
+- `CFDI_RetencionConcepto` (ISR, IVA retenido, etc.)
+
+#### CFDI de Pagos 2.0 (P):
+- `CFDI_Comprobante`, `CFDI_Emisor`, `CFDI_Receptor`
+- `Pagos_Detalle` (totales)
+- `Pagos_Pago` (información de cada pago)
+- `Pagos_DoctoRelacionado` (facturas pagadas)
+
+5. Muestra el resultado de cada archivo procesado
 
 ## Estructura del Proyecto
 
@@ -157,13 +172,31 @@ CFDIProcessor/
 
 ## Características
 
-- ✅ Procesa archivos XML de CFDI versión 4.0 con complemento de nómina 1.2
-- ✅ Valida que los archivos sean de tipo nómina
+### Tipos de CFDI Soportados
+
+- ✅ **CFDI de Nómina (N)** - Complemento de Nómina 1.2
+  - Percepciones, deducciones y otros pagos
+  - Información completa del empleado
+  
+- ✅ **CFDI de Ingreso (I) y Egreso (E)** - Facturas
+  - Conceptos con impuestos (traslados y retenciones)
+  - Información de emisor y receptor
+  
+- ✅ **CFDI de Pagos 2.0 (P)** - Complemento de Pagos
+  - Múltiples pagos por comprobante
+  - Documentos relacionados con parcialidades
+  - Totales de impuestos
+
+### Funcionalidades Generales
+
+- ✅ Procesa archivos XML de CFDI versión 4.0
+- ✅ Valida el tipo de comprobante automáticamente
 - ✅ Evita duplicados verificando el UUID
 - ✅ Maneja errores de forma individual por archivo
-- ✅ Extrae información completa del comprobante, emisor, receptor y nómina
-- ✅ Almacena percepciones, deducciones y otros pagos
+- ✅ Extrae información completa de cada tipo de CFDI
+- ✅ Almacena impuestos (traslados y retenciones) por concepto
 - ✅ Utiliza Entity Framework Core para acceso a datos
+- ✅ Soporte para procesamiento por tipo o automático
 
 ## Notas Importantes
 

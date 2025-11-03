@@ -15,6 +15,7 @@ namespace CFDIProcessor.Models
             NominaDeducciones = new HashSet<NominaDeducciones>();
             NominaOtrosPagos = new HashSet<NominaOtrosPagos>();
             NominaPercepciones = new HashSet<NominaPercepciones>();
+            PagosPago = new HashSet<PagosPago>();
         }
 
         public int IdComprobante { get; set; }
@@ -36,13 +37,16 @@ namespace CFDIProcessor.Models
         public string Estatus { get; set; }
         public string SelloDigital { get; set; }
         public string Certificado { get; set; }
+        public string EmitidaRecibida { get; set; }
 
         public virtual CfdiEmisor CfdiEmisor { get; set; }
         public virtual CfdiReceptor CfdiReceptor { get; set; }
         public virtual NominaDetalle NominaDetalle { get; set; }
+        public virtual PagosDetalle PagosDetalle { get; set; }
         public virtual ICollection<CfdiConcepto> CfdiConcepto { get; set; }
         public virtual ICollection<NominaDeducciones> NominaDeducciones { get; set; }
         public virtual ICollection<NominaOtrosPagos> NominaOtrosPagos { get; set; }
         public virtual ICollection<NominaPercepciones> NominaPercepciones { get; set; }
+        public virtual ICollection<PagosPago> PagosPago { get; set; }
     }
 }
