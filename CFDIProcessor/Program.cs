@@ -14,7 +14,7 @@ namespace CFDIProcessor
         static void Main(string[] args)
         {
             Console.WriteLine("╔════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║         Procesador de CFDI - Versión Completa             ║");
+            Console.WriteLine("║         Procesador de CFDI - Versión Unificada            ║");
             Console.WriteLine("╚════════════════════════════════════════════════════════════╝");
             Console.WriteLine();
 
@@ -22,9 +22,6 @@ namespace CFDIProcessor
             {
                 // Cargar configuración desde appsettings.json
                 var configuration = LoadConfiguration();
-
-                // Seleccionar tipo de CFDI a procesar
-                string tipoCfdi = SelectTipoCfdi();
 
                 // Obtener la ruta de la carpeta
                 string folderPath = GetFolderPath(args);
@@ -35,8 +32,8 @@ namespace CFDIProcessor
                     return;
                 }
 
-                // Procesar archivos según el tipo seleccionado
-                ProcessFiles(folderPath, tipoCfdi);
+                // Procesar archivos con el procesador unificado
+                ProcessFiles(folderPath, configuration);
 
                 Console.WriteLine();
                 Console.WriteLine("Proceso completado exitosamente.");
@@ -67,31 +64,7 @@ namespace CFDIProcessor
             }
         }
 
-        /// <summary>
-        /// Permite al usuario seleccionar el tipo de CFDI a procesar
-        /// </summary>
-        private static string SelectTipoCfdi()
-        {
-            Console.WriteLine("Seleccione el tipo de CFDI a procesar:");
-            Console.WriteLine("  1. Nómina");
-            Console.WriteLine("  2. Ingreso y Egreso (Facturas)");
-            Console.WriteLine("  3. Pagos 2.0");
-            Console.WriteLine("  4. Todos (automático según tipo)");
-            Console.WriteLine();
-            Console.Write("Opción (1-4): ");
-            
-            string opcion = Console.ReadLine();
-            Console.WriteLine();
 
-            return opcion switch
-            {
-                "1" => "nomina",
-                "2" => "ingreso-egreso",
-                "3" => "pagos",
-                "4" => "todos",
-                _ => "todos"
-            };
-        }
 
         /// <summary>
         /// Carga la configuración desde appsettings.json
@@ -100,7 +73,7 @@ namespace CFDIProcessor
         {
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
         }
 
@@ -121,9 +94,9 @@ namespace CFDIProcessor
         }
 
         /// <summary>
-        /// Procesa los archivos XML de la carpeta especificada
+        /// Procesa los archivos XML de la carpeta especificada usando el procesador unificado
         /// </summary>
-        private static void ProcessFiles(string folderPath, string tipoCfdi)
+        private static void ProcessFiles(string folderPath, IConfiguration configuration)
         {
             using (var context = new DescargaCfdiGfpContext())
             {
@@ -141,57 +114,13 @@ namespace CFDIProcessor
                 Console.ResetColor();
                 Console.WriteLine();
 
-                // Procesar según el tipo seleccionado
-                switch (tipoCfdi)
-                {
-                    case "nomina":
-                        Console.WriteLine("📋 Procesando CFDI de Nómina...");
-                        Console.WriteLine();
-                        var nominaProcessor = new NominaXmlProcessor(context);
-                        nominaProcessor.ProcessXmlFilesFromFolder(folderPath);
-                        break;
-
-                    case "ingreso-egreso":
-                        Console.WriteLine("📋 Procesando CFDI de Ingreso y Egreso...");
-                        Console.WriteLine();
-                        var ingresoEgresoProcessor = new IngresoEgresoXmlProcessor(context);
-                        ingresoEgresoProcessor.ProcessXmlFilesFromFolder(folderPath);
-                        break;
-
-                    case "pagos":
-                        Console.WriteLine("📋 Procesando CFDI de Pagos 2.0...");
-                        Console.WriteLine();
-                        var pagosProcessor = new PagosXmlProcessor(context);
-                        pagosProcessor.ProcessXmlFilesFromFolder(folderPath);
-                        break;
-
-                    case "todos":
-                        Console.WriteLine("📋 Procesando todos los tipos de CFDI...");
-                        Console.WriteLine();
-                        ProcessAllTypes(context, folderPath);
-                        break;
-                }
+                // Usar el procesador unificado
+                Console.WriteLine("📋 Procesando archivos CFDI...");
+                Console.WriteLine();
+                
+                var unifiedProcessor = new UnifiedCfdiProcessor(context, configuration);
+                unifiedProcessor.ProcessXmlFilesFromFolder(folderPath);
             }
-        }
-
-        /// <summary>
-        /// Procesa todos los tipos de CFDI automáticamente
-        /// </summary>
-        private static void ProcessAllTypes(DescargaCfdiGfpContext context, string folderPath)
-        {
-            Console.WriteLine("--- Procesando Nómina ---");
-            var nominaProcessor = new NominaXmlProcessor(context);
-            nominaProcessor.ProcessXmlFilesFromFolder(folderPath);
-
-            Console.WriteLine();
-            Console.WriteLine("--- Procesando Ingreso y Egreso ---");
-            var ingresoEgresoProcessor = new IngresoEgresoXmlProcessor(context);
-            ingresoEgresoProcessor.ProcessXmlFilesFromFolder(folderPath);
-
-            Console.WriteLine();
-            Console.WriteLine("--- Procesando Pagos 2.0 ---");
-            var pagosProcessor = new PagosXmlProcessor(context);
-            pagosProcessor.ProcessXmlFilesFromFolder(folderPath);
         }
     }
 }

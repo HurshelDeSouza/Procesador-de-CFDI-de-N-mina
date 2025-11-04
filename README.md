@@ -1,4 +1,4 @@
-# 📊 Procesador de CFDI - Versión 2.0
+# 📊 Procesador de CFDI - Versión 3.0 (Unificada)
 
 Sistema completo para procesar archivos XML de CFDI (Comprobante Fiscal Digital por Internet) de México, incluyendo Nómina, Ingreso/Egreso y Pagos 2.0.
 
@@ -9,16 +9,17 @@ Sistema completo para procesar archivos XML de CFDI (Comprobante Fiscal Digital 
 - **Ingreso (I)** - Facturas de venta con conceptos e impuestos
 - **Egreso (E)** - Notas de crédito con conceptos e impuestos
 - **Pagos 2.0 (P)** - Complementos de pago con documentos relacionados y parcialidades
-- **Traslado (T)** - Cartas porte
 
 ### ✅ Funcionalidades Principales
+- **🆕 Procesamiento Unificado**: Un solo proceso que detecta automáticamente el tipo de CFDI
+- **🆕 Configuración Flexible**: Activar/desactivar procesamiento por tipo desde `appsettings.json`
+- **🆕 Mayor Eficiencia**: La carpeta se recorre una sola vez, procesando todos los tipos habilitados
 - Procesamiento automático de archivos XML
 - Guardado completo en base de datos SQL Server
 - Procesamiento de conceptos con traslados y retenciones
 - Soporte para múltiples pagos y documentos relacionados
 - Validación de duplicados por UUID
 - Manejo de transacciones con rollback automático
-- Menú interactivo para selección de tipo de CFDI
 - Campo EmitidaRecibida para distinguir facturas emitidas/recibidas
 
 ### ✅ Impuestos Soportados
@@ -118,16 +119,28 @@ sqlcmd -S localhost -d DescargaCfdiGFP -i facturas.sql
 sqlcmd -S localhost -d DescargaCfdiGFP -i actualizar_bd.sql
 ```
 
-### 3. Configurar Cadena de Conexión
+### 3. Configurar Cadena de Conexión y Procesamiento
 
 Editar `CFDIProcessor/appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
     "DefaultConnection": "Server=localhost;Database=DescargaCfdiGFP;Integrated Security=True;TrustServerCertificate=True;"
+  },
+  "ProcessingSettings": {
+    "ProcessNomina": true,
+    "ProcessIngreso": true,
+    "ProcessEgreso": true,
+    "ProcessPagos": true
   }
 }
 ```
+
+**Configuración de Procesamiento:**
+- `ProcessNomina`: Activar/desactivar procesamiento de CFDI de Nómina
+- `ProcessIngreso`: Activar/desactivar procesamiento de CFDI de Ingreso
+- `ProcessEgreso`: Activar/desactivar procesamiento de CFDI de Egreso
+- `ProcessPagos`: Activar/desactivar procesamiento de CFDI de Pagos
 
 ### 4. Compilar el Proyecto
 ```bash
@@ -144,32 +157,42 @@ cd CFDIProcessor\bin\Debug\netcoreapp3.1
 CFDIProcessor.exe
 ```
 
-El programa mostrará un menú:
-```
-Seleccione el tipo de CFDI a procesar:
-  1. Nómina
-  2. Ingreso y Egreso (Facturas)
-  3. Pagos 2.0
-  4. Todos (automático según tipo)
-
-Opción (1-4): 
-```
-
-Luego solicita la ruta de la carpeta con los archivos XML.
+El programa solicitará la ruta de la carpeta con los archivos XML y procesará automáticamente todos los tipos de CFDI habilitados en la configuración.
 
 ### Ejecución por Línea de Comandos
 ```bash
-# Procesar nóminas
-echo 1 | CFDIProcessor.exe "C:\Ruta\Nominas"
+# Procesar carpeta con archivos mixtos
+CFDIProcessor.exe "C:\Ruta\Archivos"
+```
 
-# Procesar facturas
-echo 2 | CFDIProcessor.exe "C:\Ruta\Facturas"
+### Ventajas del Procesamiento Unificado
+- **Eficiencia**: La carpeta se recorre una sola vez
+- **Flexibilidad**: Procesa múltiples tipos de CFDI en una sola ejecución
+- **Configuración centralizada**: Control desde `appsettings.json`
+- **Detección automática**: No requiere selección manual del tipo
+- **Mejor rendimiento**: Menos operaciones de I/O
 
-# Procesar pagos
-echo 3 | CFDIProcessor.exe "C:\Ruta\Pagos"
+### Ejemplo de Salida
+```
+=== Configuración de Procesamiento ===
+Nómina: ✓ Activado
+Ingreso: ✓ Activado
+Egreso: ✓ Activado
+Pagos: ✓ Activado
 
-# Procesar todos automáticamente
-echo 4 | CFDIProcessor.exe "C:\Ruta\Todos"
+Se encontraron 15 archivo(s) XML.
+
+✓ factura_001.xml: Ingreso procesado (UUID: ABC123...)
+✓ nomina_001.xml: Nómina procesada (UUID: DEF456...)
+✓ pago_001.xml: Pago procesado (UUID: GHI789...)
+⊘ factura_002.xml: UUID ABC123... ya existe
+
+=== Resumen del Procesamiento ===
+✓ Nómina procesados: 5
+✓ Ingreso procesados: 7
+✓ Egreso procesados: 1
+✓ Pagos procesados: 2
+⊘ Omitidos (duplicados, desactivados o no válidos): 1
 ```
 
 ---
@@ -333,9 +356,29 @@ Cada archivo XML se procesa en una transacción. Si hay un error, se hace rollba
 
 ---
 
-## 🆕 Cambios Recientes (v2.0)
+## 🆕 Cambios Recientes (v3.0 - Unificada)
 
-### Nuevas Funcionalidades
+### Nuevas Funcionalidades v3.0
+✅ **Procesamiento Unificado**
+- Nuevo procesador: `UnifiedCfdiProcessor.cs`
+- Un solo recorrido de carpeta para todos los tipos
+- Detección automática del tipo de CFDI
+- Procesamiento inteligente según configuración
+- Mejor rendimiento y eficiencia
+
+✅ **Configuración Flexible**
+- Activar/desactivar tipos desde `appsettings.json`
+- Sección `ProcessingSettings` con 4 opciones
+- Sin necesidad de recompilar para cambiar tipos
+- Configuración centralizada y clara
+
+✅ **Mejoras de Interfaz**
+- Eliminado menú de selección manual
+- Proceso más directo y rápido
+- Resumen detallado por tipo procesado
+- Mejor visualización de resultados
+
+### Cambios en v2.0
 ✅ **Procesamiento de CFDI Ingreso/Egreso**
 - Nuevo procesador: `IngresoEgresoXmlProcessor.cs`
 - Guarda conceptos completos
@@ -350,28 +393,32 @@ Cada archivo XML se procesa en una transacción. Si hay un error, se hace rollba
 - Guarda documentos relacionados con parcialidades
 - Calcula saldos (anterior, pagado, insoluto)
 
-✅ **Mejoras de Código**
-- Corrección de error `Console.ReadKey()` en modo redirigido
-- Mejor manejo de errores
-- Exit code correcto (0 en éxito)
-- Código más robusto y mantenible
+### Archivos Nuevos v3.0
+- `CFDIProcessor/Services/UnifiedCfdiProcessor.cs` - Procesador unificado
 
-### Archivos Nuevos
+### Archivos Existentes (v2.0)
 - `CFDIProcessor/Services/IngresoEgresoXmlProcessor.cs`
 - `CFDIProcessor/Services/PagosXmlProcessor.cs`
+- `CFDIProcessor/Services/NominaXmlProcessor.cs`
 - `CFDIProcessor/Models/PagosDetalle.cs`
 - `CFDIProcessor/Models/PagosPago.cs`
 - `CFDIProcessor/Models/PagosDoctoRelacionado.cs`
 - `facturas.sql` - Script completo de base de datos
-- `actualizar_bd.sql` - Script de actualización incremental
 
-### Tablas Nuevas en BD
+### Tablas en BD
+- `CFDI_Comprobante` (con EmitidaRecibida)
+- `CFDI_Emisor`
+- `CFDI_Receptor`
+- `CFDI_Concepto`
+- `CFDI_TrasladoConcepto`
+- `CFDI_RetencionConcepto`
+- `Nomina_Detalle`
+- `Nomina_Percepciones`
+- `Nomina_Deducciones`
+- `Nomina_OtrosPagos`
 - `CFDI_Pagos_Detalle`
 - `CFDI_Pagos_Pago`
 - `CFDI_Pagos_DoctoRelacionado`
-
-### Columnas Nuevas
-- `CFDI_Comprobante.EmitidaRecibida` (E/R)
 
 ---
 
@@ -418,6 +465,6 @@ Para problemas o preguntas:
 
 ---
 
-**Versión:** 2.0  
-**Última Actualización:** 3 de Noviembre de 2025  
+**Versión:** 3.0 (Unificada)  
+**Última Actualización:** 4 de Noviembre de 2025  
 **Estado:** ✅ Producción

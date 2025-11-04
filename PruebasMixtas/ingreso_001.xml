@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="ING001" 
+    Fecha="2025-11-04T10:00:00" TipoDeComprobante="I" LugarExpedicion="06000" 
+    SubTotal="1000.00" Total="1160.00" Moneda="MXN" MetodoPago="PUE" FormaPago="03">
+    <cfdi:Emisor Rfc="AAA010101AAA" Nombre="Empresa Test" RegimenFiscal="601"/>
+    <cfdi:Receptor Rfc="BBB020202BBB" Nombre="Cliente Test" DomicilioFiscalReceptor="06000" 
+        RegimenFiscalReceptor="612" UsoCFDI="G03"/>
+    <cfdi:Conceptos>
+        <cfdi:Concepto ClaveProdServ="01010101" Cantidad="1" ClaveUnidad="E48" 
+            Descripcion="Producto 1" ValorUnitario="1000.00" Importe="1000.00" ObjetoImp="02">
+            <cfdi:Impuestos>
+                <cfdi:Traslados>
+                    <cfdi:Traslado Base="1000.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="160.00"/>
+                </cfdi:Traslados>
+            </cfdi:Impuestos>
+        </cfdi:Concepto>
+    </cfdi:Conceptos>
+    <cfdi:Complemento>
+        <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" 
+            Version="1.1" UUID="AAAAAAAA-0001-0001-0001-000000000001"
+            FechaTimbrado="2025-11-04T10:05:00" SelloCFD="test" NoCertificadoSAT="00001000000123456789" SelloSAT="test"/>
+    </cfdi:Complemento>
+</cfdi:Comprobante>
