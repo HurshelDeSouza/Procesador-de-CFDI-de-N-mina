@@ -22,6 +22,7 @@ namespace CFDIProcessor.Data
 
         public virtual DbSet<CfdiComprobante> CfdiComprobante { get; set; }
         public virtual DbSet<CfdiConcepto> CfdiConcepto { get; set; }
+        public virtual DbSet<CfdiConceptoImpuesto> CfdiConceptoImpuesto { get; set; }
         public virtual DbSet<CfdiEmisor> CfdiEmisor { get; set; }
         public virtual DbSet<CfdiReceptor> CfdiReceptor { get; set; }
         public virtual DbSet<CfdiRetencionConcepto> CfdiRetencionConcepto { get; set; }
@@ -30,6 +31,9 @@ namespace CFDIProcessor.Data
         public virtual DbSet<NominaDetalle> NominaDetalle { get; set; }
         public virtual DbSet<NominaOtrosPagos> NominaOtrosPagos { get; set; }
         public virtual DbSet<NominaPercepciones> NominaPercepciones { get; set; }
+        public virtual DbSet<PagosDetalle> PagosDetalle { get; set; }
+        public virtual DbSet<PagosPago> PagosPago { get; set; }
+        public virtual DbSet<PagosDoctoRelacionado> PagosDoctoRelacionado { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

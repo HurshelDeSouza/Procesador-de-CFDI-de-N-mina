@@ -27,9 +27,14 @@ CREATE TABLE DescargaCfdiGFP.dbo.CFDI_Comprobante (
 	Estatus varchar(20) COLLATE Modern_Spanish_CI_AS NULL,
 	SelloDigital varchar(MAX) COLLATE Modern_Spanish_CI_AS NULL,
 	Certificado varchar(20) COLLATE Modern_Spanish_CI_AS NULL,
+	EmitidaRecibida char(1) COLLATE Modern_Spanish_CI_AS DEFAULT 'E' NOT NULL,
 	CONSTRAINT PK__CFDI_Com__7DE63600EA946DEA PRIMARY KEY (ID_Comprobante),
 	CONSTRAINT UQ__CFDI_Com__65A475E687655BAE UNIQUE (UUID)
 );
+ALTER TABLE DescargaCfdiGFP.dbo.CFDI_Comprobante WITH NOCHECK ADD CONSTRAINT CHK_CFDI_Total_NonNegative CHECK (([Total]>=(0)));
+ALTER TABLE DescargaCfdiGFP.dbo.CFDI_Comprobante WITH NOCHECK ADD CONSTRAINT CHK_CFDI_SubTotal_NonNegative CHECK (([SubTotal]>=(0)));
+ALTER TABLE DescargaCfdiGFP.dbo.CFDI_Comprobante WITH NOCHECK ADD CONSTRAINT CHK_CFDI_TipoDeComprobante_Values CHECK (([TipoDeComprobante]='N' OR [TipoDeComprobante]='T' OR [TipoDeComprobante]='E' OR [TipoDeComprobante]='I'));
+ALTER TABLE DescargaCfdiGFP.dbo.CFDI_Comprobante WITH NOCHECK ADD CONSTRAINT CHK_CFDI_EmitidaRecibida_Values CHECK (([EmitidaRecibida]='R' OR [EmitidaRecibida]='E'));
 
 
 -- DescargaCfdiGFP.dbo.CFDI_Concepto definition
@@ -52,7 +57,7 @@ CREATE TABLE DescargaCfdiGFP.dbo.CFDI_Concepto (
 	NoIdentificacion varchar(50) COLLATE Modern_Spanish_CI_AS NULL,
 	ObjetoImp varchar(2) COLLATE Modern_Spanish_CI_AS NULL,
 	CONSTRAINT PK__CFDI_Con__3D604791D9892870 PRIMARY KEY (ID_Concepto),
-	CONSTRAINT FK__CFDI_Conc__ID_Co__3F466844 FOREIGN KEY (ID_Comprobante) REFERENCES DescargaCfdiGFP.dbo.CFDI_Comprobante(ID_Comprobante)
+	CONSTRAINT FK_CFDI_Concepto_Comprobante FOREIGN KEY (ID_Comprobante) REFERENCES DescargaCfdiGFP.dbo.CFDI_Comprobante(ID_Comprobante) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -320,6 +325,25 @@ CREATE TABLE DescargaCfdiGFP.dbo.Pagos_Pago (
 );
 
 
+-- DescargaCfdiGFP.dbo.TimbreFiscalDigital definition
+
+-- Drop table
+
+-- DROP TABLE DescargaCfdiGFP.dbo.TimbreFiscalDigital;
+
+CREATE TABLE DescargaCfdiGFP.dbo.TimbreFiscalDigital (
+	ID_Timbre int IDENTITY(1,1) NOT NULL,
+	ID_Comprobante int NOT NULL,
+	UUID varchar(36) COLLATE Modern_Spanish_CI_AS NOT NULL,
+	FechaTimbrado datetime2 NOT NULL,
+	RfcProvCertif varchar(20) COLLATE Modern_Spanish_CI_AS NULL,
+	NoCertificadoSAT varchar(20) COLLATE Modern_Spanish_CI_AS NULL,
+	SelloSAT varchar(MAX) COLLATE Modern_Spanish_CI_AS NULL,
+	CONSTRAINT PK__TimbreFi__9A718042362E5CAB PRIMARY KEY (ID_Timbre),
+	CONSTRAINT FK_Timbre_Comprobante FOREIGN KEY (ID_Comprobante) REFERENCES DescargaCfdiGFP.dbo.CFDI_Comprobante(ID_Comprobante) ON DELETE CASCADE
+);
+
+
 -- DescargaCfdiGFP.dbo.Pagos_DoctoRelacionado definition
 
 -- Drop table
@@ -343,5 +367,3 @@ CREATE TABLE DescargaCfdiGFP.dbo.Pagos_DoctoRelacionado (
 	CONSTRAINT PK__Pagos_Do__357D1442DEE9E205 PRIMARY KEY (ID_DoctoRel),
 	CONSTRAINT FK__Pagos_Doc__ID_Pa__59063A47 FOREIGN KEY (ID_Pago) REFERENCES DescargaCfdiGFP.dbo.Pagos_Pago(ID_Pago)
 );
-
-
