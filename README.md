@@ -334,10 +334,39 @@ Start-Service MSSQLSERVER
 2. Verificar la cadena de conexión en `appsettings.json`
 3. Verificar que la base de datos exista
 
+### Error: "UUID ya existe"
+**¿Es un problema?** NO - Este es el comportamiento correcto.
+
+El sistema valida que no se procesen archivos duplicados. Si el UUID ya existe, omite el archivo para evitar duplicados.
+
+### Error: "Nomina_Deducciones no es válido" o "Tabla no existe"
+**Causa:** Las tablas de nómina/pagos no existen en la base de datos.
+
+**Solución 1 (Recomendada):** Ejecutar el script completo
+```bash
+sqlcmd -S localhost -d DescargaCfdiGFP -i facturas.sql
+```
+
+**Solución 2 (Temporal):** Desactivar tipos en `appsettings.json`
+```json
+{
+  "ProcessingSettings": {
+    "ProcessNomina": false,  // Desactivar si faltan tablas
+    "ProcessPagos": false    // Desactivar si faltan tablas
+  }
+}
+```
+
 ### Archivos XML no se procesan
 1. Verificar que los archivos sean XML válidos
 2. Verificar que sean CFDI versión 4.0
-3. Revisar el log de errores en la consola
+3. Verificar que el tipo esté activado en `appsettings.json`
+4. Revisar el log de errores en la consola
+
+### Configuración no se aplica
+1. Verificar que `appsettings.json` esté en el directorio de ejecución
+2. Verificar sintaxis JSON correcta
+3. Reiniciar la aplicación después de cambios
 
 ---
 
